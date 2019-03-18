@@ -18,6 +18,13 @@
         <module>gmall-api</module>
         <module>gmall-pms</module>
         <module>gmall-admin-web</module>
+        <module>gmall-oms</module>
+        <module>gmall-sms</module>
+        <module>gmall-ums</module>
+        <module>gmall-cms</module>
+        <module>gmall-wms</module>
+        <module>gmall-mbg</module>
+
     </modules>
 
 
