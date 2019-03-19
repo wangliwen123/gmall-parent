@@ -14,6 +14,26 @@
             <artifactId>gmall-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
+        <!--依赖dubbo、zookeeper的操作客户端-->
+        <dependency>
+            <groupId>com.alibaba.boot</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
+            <version>0.2.0</version>
+        </dependency>
+
+        <!--为了api层不报错，引入mybatis-plus-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.1.0</version>
+            <!--可选依赖，只是为了防止工程mp的注解报错问题-->
+            <optional>true</optional>
+        </dependency>
+
+
+
+
     </dependencies>
 
 

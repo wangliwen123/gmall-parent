@@ -29,6 +29,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!--引入api/dubbo/common-->
+        <dependency>
+            <groupId>com.atguigu.gmall</groupId>
+            <artifactId>gmall-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
