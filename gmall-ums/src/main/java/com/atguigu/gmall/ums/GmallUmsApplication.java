@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 
+@EnableDubbo
 @MapperScan("com.atguigu.gmall.ums.mapper")
 @SpringBootApplication
 public class GmallUmsApplication {

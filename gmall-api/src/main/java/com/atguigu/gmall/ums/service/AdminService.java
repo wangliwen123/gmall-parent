@@ -13,4 +13,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface AdminService extends IService<Admin> {
 
+
+
+
+    //登陆
+    Admin login(String username, String password);
 }
