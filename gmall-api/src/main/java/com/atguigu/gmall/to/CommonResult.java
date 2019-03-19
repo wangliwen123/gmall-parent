@@ -1,4 +1,4 @@
-package com.atguigu.gmall.ums.to;
+package com.atguigu.gmall.to;
 
 import com.alibaba.fastjson.JSON;
 import org.springframework.validation.BindingResult;

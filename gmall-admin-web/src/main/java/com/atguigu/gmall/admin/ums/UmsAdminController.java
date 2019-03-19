@@ -6,7 +6,7 @@ import com.atguigu.gmall.admin.ums.vo.UmsAdminParam;
 import com.atguigu.gmall.admin.utils.JwtTokenUtil;
 import com.atguigu.gmall.ums.entity.Admin;
 import com.atguigu.gmall.ums.service.AdminService;
-import com.atguigu.gmall.ums.to.CommonResult;
+import com.atguigu.gmall.to.CommonResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,7 +17,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
