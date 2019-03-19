@@ -16,7 +16,6 @@ public class HelloController {
 
     @GetMapping("/list")
     public List<Role> hello(){
-        List<Role> list = roleService.list();
-        return list;
+        return null;
     }
 }
