@@ -23,7 +23,7 @@ public class CodeGenerator {
 
     public static void main(String[] args) {
 
-        String moduleName = "sms";
+        String moduleName = "pms";
 
         // 1、创建代码生成器
         AutoGenerator mpg = new AutoGenerator();
@@ -37,12 +37,15 @@ public class CodeGenerator {
         gc.setFileOverride(false); //重新生成时文件是否覆盖
         gc.setServiceName("%sService");	//去掉Service接口的首字母I
 
+
         //  userServiceImpl --->IService;
         // com.atguigu.userService
         gc.setIdType(IdType.AUTO); //主键策略
         gc.setDateType(DateType.ONLY_DATE);//定义生成的实体类中日期类型
         gc.setSwagger2(true);//开启Swagger2模式
         gc.setBaseColumnList(true);
+        //gc.setBaseResultMap(true);
+
 
         mpg.setGlobalConfig(gc);
 

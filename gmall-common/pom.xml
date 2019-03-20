@@ -32,6 +32,13 @@
             <version>0.9.0</version>
         </dependency>
 
+        <!--集成logstash-->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>4.8</version>
+        </dependency>
+
     </dependencies>
 
 </project>

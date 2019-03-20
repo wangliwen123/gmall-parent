@@ -1,4 +1,4 @@
-package com.atguigu.gmall.admin.ums;
+package com.atguigu.gmall.admin.ums.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.atguigu.gmall.admin.ums.vo.UmsAdminLoginParam;
@@ -23,9 +23,8 @@ import java.util.Map;
 
 /**
  * 后台用户管理
- * Created by atguigu 4/26.
  */
-@Controller
+@RestController
 @Api(tags = "AdminController", description = "后台用户管理")
 @RequestMapping("/admin")
 public class UmsAdminController {
@@ -40,8 +39,7 @@ public class UmsAdminController {
     JwtTokenUtil jwtTokenUtil;
 
     @ApiOperation(value = "用户注册")
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping(value = "/register")
     public Object register(@RequestBody UmsAdminParam umsAdminParam, BindingResult result) {
         Admin admin = null;
         //TODO 完成注册功能
@@ -50,8 +48,7 @@ public class UmsAdminController {
     }
 
     @ApiOperation(value = "登录以后返回token")
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping(value = "/login")
     public Object login(@RequestBody UmsAdminLoginParam umsAdminLoginParam, BindingResult result) {
         //去数据库登陆
         Admin admin = adminService.login(umsAdminLoginParam.getUsername(), umsAdminLoginParam.getPassword());
@@ -68,8 +65,7 @@ public class UmsAdminController {
     }
 
     @ApiOperation(value = "刷新token")
-    @RequestMapping(value = "/token/refresh", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping(value = "/token/refresh")
     public Object refreshToken(HttpServletRequest request) {
         //1、获取请求头中的Authorization完整值
         String oldToken = request.getHeader(tokenHeader);
