@@ -3,6 +3,8 @@ package com.atguigu.gmall.pms.service;
 import com.atguigu.gmall.pms.entity.Brand;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Map;
+
 /**
  * <p>
  * 品牌表 服务类
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface BrandService extends IService<Brand> {
 
+    Map<String, Object> pageBrand(String keyword, Integer pageNum, Integer pageSize);
 }

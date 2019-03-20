@@ -13,10 +13,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 商品管理Controller
  */
+@CrossOrigin
 @RestController
 @Api(tags = "PmsProductController", description = "商品管理")
 @RequestMapping("/product")
@@ -51,8 +53,14 @@ public class PmsProductController {
     public Object getList(PmsProductQueryParam productQueryParam,
                           @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize,
                           @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
-        //TODO 查询商品
-        return new CommonResult().success(null);
+
+
+        //TODO 分页查询商品
+
+        Map<String,Object> pageInfo = productService.pageProduct(pageSize,pageNum);
+
+
+        return new CommonResult().success(pageInfo);
     }
 
     @ApiOperation("根据商品名称或货号模糊查询")
