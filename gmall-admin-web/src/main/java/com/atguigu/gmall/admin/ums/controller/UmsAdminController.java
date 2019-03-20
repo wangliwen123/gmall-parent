@@ -10,13 +10,16 @@ import com.atguigu.gmall.to.CommonResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +60,7 @@ import java.util.Map;
 @RestController
 @Api(tags = "AdminController", description = "后台用户管理")
 @RequestMapping("/admin")
+@Slf4j
 public class UmsAdminController {
     @Reference
     private AdminService adminService;
@@ -73,12 +77,37 @@ public class UmsAdminController {
 
     @ApiOperation(value = "用户注册")
     @PostMapping(value = "/register")
-    public Object register(@RequestBody UmsAdminParam umsAdminParam, BindingResult result) {
+    public Object register(@Valid @RequestBody UmsAdminParam umsAdminParam, BindingResult result) {
         Admin admin = null;
         //TODO 完成注册功能
 
+//        if(!errors){
+//
+//        }else{
+//            List<FieldError> fieldErrors = result.getFieldErrors();
+//            Map<String,String> e = new HashMap<>();
+//            for (FieldError fieldError : fieldErrors) {
+//                //获取属性名 代表当前属性出错了
+//                String field = fieldError.getField();
+//                //获取当时不满足要求的这个值
+//                Object value = fieldError.getRejectedValue();
+//                //获取提示信息
+//                String message = fieldError.getDefaultMessage();
+//                e.put(field,message);
+//                log.error("属性校验发生错误：属性名[{}]，属性值[{}]，错误提示消息：{}",field,value,message);
+//            }
+//
+//            return new CommonResult().validateFailed(result);
+//        }
+            int i = 10 /0;
+
+
+        //统一的异常处理
+
         return new CommonResult().success(admin);
     }
+
+
 
     /**
      * 默认不允许跨域
@@ -88,7 +117,8 @@ public class UmsAdminController {
      */
     @ApiOperation(value = "登录以后返回token")
     @PostMapping(value = "/login")
-    public Object login(@RequestBody UmsAdminLoginParam umsAdminLoginParam, BindingResult result) {
+    public Object login(@RequestBody UmsAdminLoginParam umsAdminLoginParam,
+                        BindingResult result) {
         //去数据库登陆
         Admin admin = adminService.login(umsAdminLoginParam.getUsername(), umsAdminLoginParam.getPassword());
 
