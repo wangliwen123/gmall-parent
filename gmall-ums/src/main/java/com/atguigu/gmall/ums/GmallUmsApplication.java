@@ -7,6 +7,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 
+/**
+ * 1）、引入mp和dubbo依赖‘
+ * 2）、application.properties中配置dubbo暴露服务
+ * 3）、Main中配置 mp的包扫描和@EnableDubbo 即可
+ * 4）、@Service dubbo家的暴露服务
+ *      为每一个服务标两个
+ *         @Service(dubbo的)  为了让了别人refrence
+ *          @Component 为了让自己模块Autowired
+ *          public class AdminPermissionRelationServiceImpl
+ */
 @EnableDubbo
 @MapperScan("com.atguigu.gmall.ums.mapper")
 @SpringBootApplication

@@ -23,13 +23,46 @@ import java.util.Map;
 
 /**
  * 后台用户管理
+ *
+ * 1、什么叫跨域?
+ *      域：域名； 跨域名访问
+ *      跨域出现什么问题？  请求url地址和当前所在的域名不一样 http://www.atguigu.com:8080
+ *          www.gulishop.com
+ *          <a href="http://www.baidu.com">去百度</a> 可以
+ *
+ *          <a id="btn01">把百度的东西拿来</a>
+ *          $("#btn01").click(function(){
+ *              $.get("http://www.baidu.com",function(data){
+ *                  // ele.html(data)
+ *              })
+ *          })
+ *
+ *      HTTP协议为了安全起见，限制了ajax请求的跨域访问；ajax只能给自己当前网站发请求;
+ *      1）、浏览器一但发现是ajax请求，浏览器会帮你发请求，但是返回的数据会被浏览器劫持（服务器默认说不能跨域访问）；
+ *      www.ta0ba0.com  www.taobao.com
+ *      $.ajax("",function(){
+ *
+ *      })
+ *
+ *      2）、场景：难道ajax不能调第三方api？服务器告诉浏览器这次跨域允许
+ *              服务器告诉浏览器（响应头） Set-Cookie:k=v
+ *
+ *
+ * 2、为什么会跨域？
+ *      请求url地址和当前所在的域名不一样 http://www.atguigu.com:8080
+ * 3、怎么解决跨域？
+ *      服务器在响应请求的时候，如果某个允许跨域需要在响应头上说明
  */
+@CrossOrigin
 @RestController
 @Api(tags = "AdminController", description = "后台用户管理")
 @RequestMapping("/admin")
 public class UmsAdminController {
     @Reference
     private AdminService adminService;
+
+
+
     @Value("${gmall.jwt.tokenHeader}")
     private String tokenHeader;
     @Value("${gmall.jwt.tokenHead}")
@@ -47,6 +80,12 @@ public class UmsAdminController {
         return new CommonResult().success(admin);
     }
 
+    /**
+     * 默认不允许跨域
+     * @param umsAdminLoginParam
+     * @param result
+     * @return
+     */
     @ApiOperation(value = "登录以后返回token")
     @PostMapping(value = "/login")
     public Object login(@RequestBody UmsAdminLoginParam umsAdminLoginParam, BindingResult result) {
@@ -55,6 +94,12 @@ public class UmsAdminController {
 
         //登陆成功生成token，此token携带基本用户信息，以后就不用去数据库了
         String token = jwtTokenUtil.generateToken(admin);
+
+        // token=UUID   作为key 在redis中保存了用户的 username等详细信息；
+        // jwt；JSON Web Token； token有意义；   header.payload(负载).sign(签名)
+        //把所有的东西制作成jwt。eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMzQ1Njc4OTAiLCJuYW1lIjoiSm9obiBEb2UiLCJkYXRlIjoxNTE2MjM5MDIyfQ.j_q_Trbn0S7olG4NSvGUEmrcXpT4HBjtJZRpuJWPh34
+        //让前端以后所有请求都带上这个有意义的token（jwt）；后端不用存储信息
+        //jwt安全
         if (token == null) {
             return new CommonResult().validateFailed("用户名或密码错误");
         }
@@ -93,9 +138,17 @@ public class UmsAdminController {
     @ResponseBody
     public Object getAdminInfo(HttpServletRequest request) {
         String oldToken = request.getHeader(tokenHeader);
-        String userName = jwtTokenUtil.getUserNameFromToken(oldToken);
 
-        Admin umsAdmin = adminService.getOne(new QueryWrapper<Admin>().eq("username",userName));
+        String token = oldToken.substring(tokenHead.length());
+        String userName = jwtTokenUtil.getUserNameFromToken(token);
+        System.out.println("需要去访问的用户名："+userName);
+
+        //MyBatisPlus的service简单方法可以用，复杂的方法（参数是QueryWrapper、参数是IPage的都不要用）
+       // Admin umsAdmin = adminService.getOne(new QueryWrapper<Admin>().eq("username",userName));
+        //Admin umsAdmin = adminService.getById(1);
+        Admin umsAdmin = adminService.getAdminByUsername(userName);
+
+
         Map<String, Object> data = new HashMap<>();
         data.put("username", umsAdmin.getUsername());
         data.put("roles", new String[]{"TEST"});
