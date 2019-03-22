@@ -12,10 +12,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 商品属性管理Controller
  */
+@CrossOrigin
 @RestController
 @Api(tags = "PmsProductAttributeController", description = "商品属性管理")
 @RequestMapping("/productAttribute")
@@ -24,14 +26,16 @@ public class PmsProductAttributeController {
     private ProductAttributeService productAttributeService;
 
     @ApiOperation("根据分类查询属性列表或参数列表")
-    @ApiImplicitParams({@ApiImplicitParam(name = "type", value = "0表示属性，1表示参数", required = true, paramType = "query", dataType = "integer")})
+    @ApiImplicitParams({@ApiImplicitParam(name = "type", value = "0表示销售属性，1表示参数", required = true, paramType = "query", dataType = "integer")})
     @GetMapping(value = "/list/{cid}")
     public Object getList(@PathVariable Long cid,
                           @RequestParam(value = "type") Integer type,
                           @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize,
                           @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
         //TODO 根据分类查询属性列表或参数列表
-        return new CommonResult().success(null);
+
+        Map<String,Object> pages = productAttributeService.selectProductAttributeByCategory(cid,type,pageNum,pageSize);
+        return new CommonResult().success(pages);
     }
 
     @ApiOperation("添加商品属性信息")

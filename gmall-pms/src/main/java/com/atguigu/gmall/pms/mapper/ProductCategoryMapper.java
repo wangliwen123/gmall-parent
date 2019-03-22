@@ -1,7 +1,10 @@
 package com.atguigu.gmall.pms.mapper;
 
 import com.atguigu.gmall.pms.entity.ProductCategory;
+import com.atguigu.gmall.to.PmsProductCategoryWithChildrenItem;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ProductCategoryMapper extends BaseMapper<ProductCategory> {
 
+    /**
+     * 查询并返回数据
+     * @return
+     */
+    List<PmsProductCategoryWithChildrenItem> listWithChildren(Integer id);
 }

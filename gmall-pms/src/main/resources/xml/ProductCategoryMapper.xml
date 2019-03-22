@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.gmall.pms.mapper.ProductCategoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.atguigu.gmall.pms.entity.ProductCategory">
+        <id column="id" property="id" />
+        <result column="parent_id" property="parentId" />
+        <result column="name" property="name" />
+        <result column="level" property="level" />
+        <result column="product_count" property="productCount" />
+        <result column="product_unit" property="productUnit" />
+        <result column="nav_status" property="navStatus" />
+        <result column="show_status" property="showStatus" />
+        <result column="sort" property="sort" />
+        <result column="icon" property="icon" />
+        <result column="keywords" property="keywords" />
+        <result column="description" property="description" />
+    </resultMap>
+
+    <resultMap id="listWithChildrenResultMap" type="com.atguigu.gmall.to.PmsProductCategoryWithChildrenItem" extends="BaseResultMap">
+        <!--<result property="children" ></result>-->
+
+        <!--这个children是一个对象，指定封装规则-->
+        <!--<association property="children"></association>-->
+        <!--这个children是一个集合-->
+        <!--column=""将这次查询的指定的这一列的值传下去作为下一次查询使用的值，写列名，代表将哪一列的值传下去-->
+        <collection property="children" select="listWithChildren" column="id"/>
+
+    </resultMap>
+
+    <!--查某个菜单的子菜单-->
+    <select id="listWithChildren" resultMap="listWithChildrenResultMap">
+        /*id是什么相当于查询的这个菜单的子菜单*/
+        select * from pms_product_category where parent_id = #{id}
+    </select>
+
+
+</mapper>

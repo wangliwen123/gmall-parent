@@ -44,7 +44,7 @@ public class CodeGenerator {
         gc.setDateType(DateType.ONLY_DATE);//定义生成的实体类中日期类型
         gc.setSwagger2(true);//开启Swagger2模式
         gc.setBaseColumnList(true);
-        //gc.setBaseResultMap(true);
+        gc.setBaseResultMap(true);//生成xml的baseResultMap
 
 
         mpg.setGlobalConfig(gc);

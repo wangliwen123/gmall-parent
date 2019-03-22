@@ -28,6 +28,8 @@
         <appender-ref ref="FILE"/>
         <appender-ref ref="LOGSTASH"/>
     </root>
+
+    <logger name="com.atguigu.gmall" level="DEBUG" />
 </configuration>
 
 
