@@ -30,4 +30,6 @@ public class OssController {
 		return new CommonResult().success(result);
 	}
 
+
+
 }
