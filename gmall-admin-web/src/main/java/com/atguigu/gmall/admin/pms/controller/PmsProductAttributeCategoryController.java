@@ -36,6 +36,7 @@ public class PmsProductAttributeCategoryController {
     @PostMapping(value = "/update/{id}")
     public Object update(@PathVariable Long id, @RequestParam String name) {
         //TODO 修改商品属性分类
+        //djaskljdakljdlajdakljda
         return new CommonResult().success(null);
     }
 
