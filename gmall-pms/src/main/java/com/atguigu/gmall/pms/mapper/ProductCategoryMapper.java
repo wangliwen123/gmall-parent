@@ -21,4 +21,6 @@ public interface ProductCategoryMapper extends BaseMapper<ProductCategory> {
      * @return
      */
     List<PmsProductCategoryWithChildrenItem> listWithChildren(Integer id);
+
+    void updateCountById(Long id);
 }

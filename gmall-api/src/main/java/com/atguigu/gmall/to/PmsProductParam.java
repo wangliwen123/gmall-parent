@@ -1,4 +1,4 @@
-package com.atguigu.gmall.admin.pms.vo;
+package com.atguigu.gmall.to;
 
 import com.atguigu.gmall.cms.entity.PrefrenceAreaProductRelation;
 import com.atguigu.gmall.cms.entity.SubjectProductRelation;
@@ -13,6 +13,7 @@ import java.util.List;
  */
 @Data
 public class PmsProductParam extends Product {
+
     @ApiModelProperty("商品阶梯价格设置")
     private List<ProductLadder> productLadderList;
     @ApiModelProperty("商品满减价格设置")

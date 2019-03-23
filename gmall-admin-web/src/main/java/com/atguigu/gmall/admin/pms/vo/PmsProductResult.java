@@ -1,5 +1,6 @@
 package com.atguigu.gmall.admin.pms.vo;
 
+import com.atguigu.gmall.to.PmsProductParam;
 import lombok.Data;
 
 /**
