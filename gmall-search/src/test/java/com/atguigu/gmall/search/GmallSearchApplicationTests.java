@@ -239,6 +239,10 @@ public class GmallSearchApplicationTests {
 
     }
 
+
+    // getByAddressOrEmailLike(String value);
+
+
     //打印结果
     private void printResult( SearchResult execute){
 
