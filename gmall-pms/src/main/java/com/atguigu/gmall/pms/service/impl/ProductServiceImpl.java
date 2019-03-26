@@ -1,10 +1,15 @@
 package com.atguigu.gmall.pms.service.impl;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.atguigu.gmall.pms.entity.*;
 import com.atguigu.gmall.pms.mapper.*;
 import com.atguigu.gmall.pms.service.ProductService;
+import com.atguigu.gmall.search.GmallSearchService;
 import com.atguigu.gmall.to.PmsProductParam;
+import com.atguigu.gmall.to.es.EsProduct;
+import com.atguigu.gmall.to.es.EsProductAttributeValue;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -59,6 +64,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Autowired
     SkuStockMapper skuStockMapper;
+
+    @Reference(version = "1.0")
+    GmallSearchService searchService;
 
     Map<Thread,Product> map = new HashMap<>();
 
@@ -141,6 +149,73 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         psProxy.saveMemberPrice(productParam.getMemberPriceList());
         psProxy.saveProductAttributeValue(productParam.getProductAttributeValueList());
         psProxy.updateProductCategoryCount();
+
+    }
+
+    @Override
+    public void publishStatus(List<Long> ids, Integer publishStatus) {
+        //1、上架/下架
+        if(publishStatus==1){
+            publishProduct(ids);
+        }else{
+            removeProduct(ids);
+        }
+
+
+    }
+
+    private void publishProduct(List<Long> ids){
+        //1、查当前需要上架的商品的sku信息和spu信息
+        ids.forEach((id)->{
+            //1）、SPU
+            Product product = productMapper.selectById(id);
+            //2）、需要上架的SKU
+            List<SkuStock> skuStocks = skuStockMapper.selectList(new QueryWrapper<SkuStock>().eq("product_id", product.getId()));
+            //3）、这个商品所有的参数值
+            List<EsProductAttributeValue> attributeValues = productAttributeValueMapper.selectProductAttrValues(product.getId());
+            //4）、改写信息，将其发布到es；统计上架状态是否全部完成
+            AtomicReference<Integer> count = new AtomicReference<Integer>(0);
+
+
+            skuStocks.forEach((sku)->{
+                EsProduct esProduct = new EsProduct();
+                BeanUtils.copyProperties(product,esProduct);
+                //5）改写商品的标题，加上sku的销售属性
+                esProduct.setName(product.getName()+" "+sku.getSp1()+" "+sku.getSp2()+""+sku.getSp3());
+                esProduct.setPrice(sku.getPrice());
+                esProduct.setStock(sku.getStock());
+                esProduct.setSale(sku.getSale());
+                esProduct.setAttrValueList(attributeValues);
+                //6）、改写id，使用sku的id
+                esProduct.setId(sku.getId());//直接改为sku的id
+                //7)、保存到es中；//5个成了3个败了。不成
+                boolean es = searchService.saveProductInfoToES(esProduct);
+                count.set(count.get()+1);
+                if(es){
+                    //保存当前的id，list.add(id);
+
+                }
+            });
+
+            //8）、判断是否完全上架成功，成功改数据库状态
+            if(count.get()==skuStocks.size()){
+                //9）、修改数据库状态;都是包装类型允许null值
+                Product update = new Product();
+                update.setId(product.getId());
+                update.setPublishStatus(1);
+                productMapper.updateById(update);
+            }else{
+                //9）、成功的撤销操作；来保证业务数据的一致性；
+                //es有失败  list.forEach(remove());
+            }
+
+
+
+        });
+
+
+    }
+    private void removeProduct(List<Long> ids){
 
     }
 

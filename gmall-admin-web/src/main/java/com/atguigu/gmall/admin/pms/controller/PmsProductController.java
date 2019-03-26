@@ -2,6 +2,7 @@ package com.atguigu.gmall.admin.pms.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.atguigu.gmall.pms.service.ProductAttributeService;
+import com.atguigu.gmall.search.GmallSearchService;
 import com.atguigu.gmall.to.PmsProductParam;
 import com.atguigu.gmall.admin.pms.vo.PmsProductQueryParam;
 import com.atguigu.gmall.pms.service.ProductService;
@@ -25,6 +26,10 @@ import java.util.Map;
 public class PmsProductController {
     @Reference
     private ProductService productService;
+
+    @Reference(version = "1.0")
+    private GmallSearchService searchService;
+
 
     @Reference
     private ProductAttributeService productAttributeService;
@@ -85,11 +90,16 @@ public class PmsProductController {
         return new CommonResult().success(null);
     }
 
+    //product/update/publishStatus?ids=59&publishStatus=1
     @ApiOperation("批量上下架")
     @PostMapping(value = "/update/publishStatus")
     public Object updatePublishStatus(@RequestParam("ids") List<Long> ids,
                                      @RequestParam("publishStatus") Integer publishStatus) {
         //TODO 批量上下架
+
+        //searchService.publishStatus(ids,publishStatus);
+        productService.publishStatus(ids,publishStatus);
+
         return new CommonResult().success(null);
     }
 

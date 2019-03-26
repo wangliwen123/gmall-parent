@@ -7,4 +7,13 @@
         id, product_id, product_attribute_id, value
     </sql>
 
+    <!-- List<EsProductAttributeValue> selectProductAttrValues(Long id);-->
+    <select id="selectProductAttrValues" resultType="com.atguigu.gmall.to.es.EsProductAttributeValue">
+        SELECT pav.id id,pav.`product_id`,pav.`product_attribute_id`,pav.`value`,
+            pa.`name`,pa.`type` FROM `pms_product_attribute_value`  pav
+            LEFT JOIN `pms_product_attribute` pa
+            ON pa.id = pav.`product_attribute_id`
+            WHERE product_id=#{id}
+    </select>
+
 </mapper>
