@@ -165,7 +165,6 @@ public class GmallSearchServiceImpl implements GmallSearchService {
 
 //        Bucket bucket = childrenAggregation.getAggregation("productAttrId", Bucket.class);
         List<TermsAggregation.Entry> buckets = termsAggregation.getBuckets();
-        
         buckets.forEach((b)->{
             SearchResponseAttrVo attrVo = new SearchResponseAttrVo();
             //第一层属性id
