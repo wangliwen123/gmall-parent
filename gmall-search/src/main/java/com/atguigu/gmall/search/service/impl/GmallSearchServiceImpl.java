@@ -15,7 +15,10 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.search.aggregation.*;
+import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
@@ -23,8 +26,11 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -194,10 +200,71 @@ public class GmallSearchServiceImpl implements GmallSearchService {
 
         SearchSourceBuilder searchSource = new SearchSourceBuilder();
 
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         //1、查询
-        searchSource.query(QueryBuilders.matchQuery("name",param.getKeyword()));
+        if(!StringUtils.isEmpty(param.getKeyword())){
+            //小米  must必须满足。match是用来做模糊的，term是用来做精确的，
+            // filter是用来和match一样但不计算相关性评分的
+            boolQuery.must(QueryBuilders.matchQuery("name",param.getKeyword()));
+            //subTitle与keywords作为加分项
+            boolQuery.should(QueryBuilders.matchQuery("subTitle",param.getKeyword()));
+            boolQuery.should(QueryBuilders.matchQuery("keywords",param.getKeyword()));
+        }
+       //2、过滤
+        if(param.getCatelog3Id()!=null){
+            //传了分类id
+            boolQuery.filter(QueryBuilders.termsQuery("productCategoryId",param.getCatelog3Id()));
+        }
+        if(param.getBrandId()!=null){
+            //传了品牌
+            boolQuery.filter(QueryBuilders.termsQuery("brandId",param.getBrandId()));
+        }
 
-        //2、过滤
+        //传了属性，过滤属性
+        if(param.getProps()!=null&&param.getProps().length>0){
+            String[] props = param.getProps();
+
+            for (String prop : props) {
+                String productAttrId = prop.split(":")[0];
+                String productAttrValue = prop.split(":")[1];
+                boolQuery.filter(
+                        QueryBuilders.nestedQuery("attrValueList",
+                                QueryBuilders.boolQuery()
+                                        .must(
+                                                QueryBuilders.termQuery("attrValueList.productAttributeId",productAttrId))
+                                        .must(
+                                                QueryBuilders.termQuery("attrValueList.value",productAttrValue)),ScoreMode.None)
+                        );
+            }
+        }
+
+
+
+        String[] props = param.getProps();
+        if (props!=null){
+            for (String prop : props) {
+                //  props=2:a-b-c
+                String valus = prop.split(":")[1];
+
+                String[] split = valus.split("-");
+
+                BoolQueryBuilder must = QueryBuilders.boolQuery()
+                        .must(QueryBuilders.termQuery("attrValueList.productAttributeId", prop.split(":")[0]))
+                        .must(QueryBuilders.termsQuery("attrValueList.value",split));
+                //过滤属性
+                boolQuery.filter(QueryBuilders.nestedQuery("attrValueList",must, ScoreMode.None));
+            }
+        }
+
+        //价格区间过滤
+        if(param.getPriceFrom()!=null){
+            boolQuery.filter(QueryBuilders.rangeQuery("price").gte(param.getPriceFrom()));
+        }
+        if(param.getPriceTo()!=null){
+            boolQuery.filter(QueryBuilders.rangeQuery("price").lte(param.getPriceTo()));
+        }
+        searchSource.query(boolQuery);
+
 
         //2、聚合
         //searchSource.aggregation()
@@ -259,6 +326,29 @@ public class GmallSearchServiceImpl implements GmallSearchService {
         //param.getPageNum()
         searchSource.from((param.getPageNum()-1)*param.getPageSize());
         searchSource.size(param.getPageSize());
+
+        //5、排序
+        if(!StringUtils.isEmpty(param.getOrder())){
+            String order = param.getOrder();
+            String type = order.split(":")[0];
+            String asc = order.split(":")[1];//asc;desc  2:asc 3:40-50
+
+            if("0".equals(type)){
+                searchSource.sort(SortBuilders.scoreSort().order(SortOrder.fromString(asc)));
+            }
+            if("1".equals(type)){
+                //1、如果一开始没映射上可能导致数据没有。删索引，重新映射
+                searchSource.sort(SortBuilders.fieldSort("sale").order(SortOrder.fromString(asc)));
+            }
+            if("2".equals(type)){
+                searchSource.sort(SortBuilders.fieldSort("price").order(SortOrder.fromString(asc)));
+            }
+//            if("3".equals(type)){
+//                //价格区间查询
+//                searchSource.sort(SortBuilders.fieldSort("price").order(SortOrder.fromString(asc)));
+//            }
+        }
+
 
         System.out.println(searchSource.toString());
         return searchSource.toString();
