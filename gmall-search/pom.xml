@@ -70,12 +70,7 @@
             </exclusions>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.redisson/redisson -->
-        <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson</artifactId>
-            <version>3.10.5</version>
-        </dependency>
+
 
 
     </dependencies>

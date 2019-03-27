@@ -7,21 +7,17 @@ import io.searchbox.core.search.aggregation.*;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.avg.AvgAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -29,20 +25,7 @@ public class GmallSearchApplicationTests {
 
     @Autowired
     JestClient jestClient;
-    @Autowired
-    RedissonClient redissonClient;
 
-    @Test
-    public void redisson(){
-        RLock lock =
-                redissonClient.getLock("sku:123");
-        lock.lock();
-        System.out.println("获取到锁..."+lock.getName());
-        System.out.println(lock.getHoldCount()+"==>"+lock.isLocked());
-       lock.unlock();
-
-
-    }
 
 
     @Test
