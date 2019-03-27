@@ -18,4 +18,23 @@
         #{});
     </insert>-->
 
+    <!--  List<EsProductAttributeValue> getProductSaleAttr(Long productId);
+
+    List<EsProductAttributeValue> getProductBaseAttr(Long productId);-->
+    <select id="getProductSaleAttr" resultType="com.atguigu.gmall.to.es.EsProductAttributeValue">
+        SELECT pav.*,pa.name,pa.type FROM `pms_product_attribute_value` pav
+            LEFT JOIN `pms_product_attribute` pa
+            ON pa.id=pav.product_attribute_id
+            WHERE
+            product_id=#{productId} AND pa.type=0
+    </select>
+
+    <select id="getProductBaseAttr" resultType="com.atguigu.gmall.to.es.EsProductAttributeValue">
+         SELECT pav.*,pa.name,pa.type FROM `pms_product_attribute_value` pav
+            LEFT JOIN `pms_product_attribute` pa
+            ON pa.id=pav.product_attribute_id
+            WHERE
+            product_id=#{productId} AND pa.type=1
+    </select>
+
 </mapper>

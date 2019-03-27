@@ -2,6 +2,8 @@ package com.atguigu.gmall.pms.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
+import com.atguigu.gmall.constant.RedisCacheConstant;
 import com.atguigu.gmall.pms.entity.*;
 import com.atguigu.gmall.pms.mapper.*;
 import com.atguigu.gmall.pms.service.ProductService;
@@ -20,12 +22,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -64,6 +70,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Autowired
     SkuStockMapper skuStockMapper;
+
+    @Autowired
+    JedisPool jedisPool;
 
     @Reference(version = "1.0")
     GmallSearchService searchService;
@@ -162,6 +171,87 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         }
 
 
+    }
+
+    //查询销售属性的列表
+    @Override
+    public List<EsProductAttributeValue> getProductSaleAttr(Long productId) {
+
+        return productMapper.getProductSaleAttr(productId);
+    }
+
+    //查询基本属性值的列表
+    @Override
+    public List<EsProductAttributeValue> getProductBaseAttr(Long productId) {
+        return productMapper.getProductBaseAttr(productId);
+    }
+
+    /**
+     * 1、缓存的所有key必须给过期时间。
+     * 2、过期时间：
+     *      1）、数据库能查到的值，给设置长一点；
+     *      2）、数据库查不到的值，给设置短一点
+     *      3）、为了防止雪崩（同一时刻，大量缓存同时失效，请求全部去DB）-给过期时间加上随机数
+     *
+     * 3、应用级锁（单机锁：Synchronize，Lock，）
+     * 4、分布式锁
+     *      1）、占个坑
+     *      问题：
+     *          1）、执行业务中途出现问题（代码问题，机器问题），导致没有运行到删锁。所有人都获取不到锁怎么办？
+     *          2）、执行业务时间太长。让别人等的太久，优化？
+     * @param productId
+     * @return
+     */
+    @Override
+    public Product getProductByIdFromCache(Long productId)  {
+        Jedis jedis = jedisPool.getResource();
+
+
+
+        //1、先去缓存中检索  GULI:PRODUCT:INFO:productId
+        Product product = null;
+        String s = jedis.get(RedisCacheConstant.PRODUCT_INFO_CACHE_KEY + productId);
+        if(StringUtils.isEmpty(s)){
+            //2、缓存中没有去找数据库
+            //tryLock()
+            //3、 去redis中占坑
+            Long lock = jedis.setnx("lock", "123");
+            if(lock == 1){
+                //获取到锁，查数据，放在缓存中
+                product = productMapper.selectById(productId);
+                //finally  releaseLock();
+                //if(product!=null)
+                //3、放入缓存
+                String json = JSON.toJSONString(product); //无论数据库是否有值，我们都因该放入缓存，防止穿透
+                if(product == null){
+                    int anInt = new Random().nextInt(2000);
+                    jedis.setex(RedisCacheConstant.PRODUCT_INFO_CACHE_KEY + productId,60+anInt,json);
+                }else{
+                    //过期时间
+                    int anInt = new Random().nextInt(2000);
+                    jedis.setex(RedisCacheConstant.PRODUCT_INFO_CACHE_KEY + productId,60*60*24*3+anInt,json);
+                }
+                jedis.del("lock");
+            }else{
+                try {
+                    Thread.sleep(1000);
+                    //如果没有获取到锁去查数据库，我们等待一会，再去缓存看
+                    getProductByIdFromCache(productId);
+                } catch (InterruptedException e) {
+
+                }
+            }
+
+
+
+        }else {
+            //4、缓存中有
+            product = JSON.parseObject(s, Product.class);
+        }
+
+
+        jedis.close();
+        return product;
     }
 
     private void publishProduct(List<Long> ids){

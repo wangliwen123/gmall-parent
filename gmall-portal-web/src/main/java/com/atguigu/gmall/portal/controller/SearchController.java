@@ -4,11 +4,13 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.atguigu.gmall.search.GmallSearchService;
 import com.atguigu.gmall.to.es.SearchParam;
 import com.atguigu.gmall.to.es.SearchResponse;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+@CrossOrigin
 @RestController
 public class SearchController {
 

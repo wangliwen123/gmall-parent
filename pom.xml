@@ -24,6 +24,8 @@
         <module>gmall-cms</module>
         <module>gmall-wms</module>
         <module>gmall-mbg</module>
+        <module>gmall-portal-web</module>
+        <module>gmall-search</module>
     </modules>
 
 
