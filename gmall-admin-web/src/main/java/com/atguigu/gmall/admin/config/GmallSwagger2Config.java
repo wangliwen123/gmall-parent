@@ -15,17 +15,19 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 public class GmallSwagger2Config {
 
-    @Bean("后台用户模块")
+    @Bean("后台模块")
     public Docket userApis() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("后台用户模块")
+                .groupName("后用户模块")
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
-                .paths(PathSelectors.regex("/admin.*"))
+//                .paths(PathSelectors.regex("/admin.*"))
                 .build()
                 .apiInfo(apiInfo())
                 .enable(true);
     }
+
+
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
