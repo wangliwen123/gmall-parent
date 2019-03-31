@@ -1,5 +1,6 @@
 package com.atguigu.gmall.admin.utils;
 
+import com.alibaba.dubbo.rpc.RpcContext;
 import com.atguigu.gmall.ums.entity.Admin;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +38,7 @@ public class JwtTokenUtil {
      * 根据负责生成JWT的token
      */
     private String generateToken(Map<String, Object> claims) {
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(generateExpirationDate())

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  *          @Component 为了让自己模块Autowired
  *          public class AdminPermissionRelationServiceImpl
  */
+@EnableTransactionManagement
 @EnableDubbo
 @MapperScan("com.atguigu.gmall.ums.mapper")
 @SpringBootApplication

@@ -25,15 +25,16 @@ public class SearchParam implements Serializable {
      *         ]
      */
 
-    // search?catelog3Id=1&catelog3Id=2&catelog3Id=3&brandId=1&brandId=2&props=2:3g-4g-5g&props=4:4.7-5.0
-    private Long[] catelog3Id;//三级分类id
+    // search?catelog3=手机&catelog3=配件&brand=1&props=43:3g-4g-5g&props=45:4.7-5.0
+    // &order=2:asc/desc&priceFrom=100&priceTo=10000&pageNum=1&pageSize=12&keyword=手机
+    private String[] catelog3;//三级分类id
 
-    private Long[] brandId;//品牌id
+    private String[] brand;//品牌id
 
     private String keyword;//检索的关键字
 
     // order=1:asc  排序规则
-    private String order;// 0：综合排序  1：销量  2：价格  3：价格区间  如果有3:asc
+    private String order;// 0：综合排序  1：销量  2：价格
 
     private Integer pageNum = 1;//分页信息
 

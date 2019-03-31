@@ -25,13 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.params.SetParams;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -199,6 +197,42 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      *      问题：
      *          1）、执行业务中途出现问题（代码问题，机器问题），导致没有运行到删锁。所有人都获取不到锁怎么办？
      *          2）、执行业务时间太长。让别人等的太久，优化？
+     *
+     *
+     *      2）、分布式锁的伪代码：
+     *        function a(){
+     *          if(jedis.setnxex("key",token,timeout-3)){
+     *              try{
+     *                  //执行业务逻辑
+     *              }finally{
+     *                  jedis.eval(解锁脚本,key,value);
+     *              }
+     *          }else{
+     *              // 等待继续；递归锁，自旋锁（轻量级锁）
+     *              a();
+s     *              //while(true){
+     *                  //获取锁
+     *              //}
+     *          };
+     *        }
+     *
+     *  锁粒度：
+     *              jedis.set("lock:200")
+     *
+     *       写数据：
+     *          if(jedis.setnxex("write:200")){
+     *
+     *              //1、writeToSor
+     *              //2、update/del cache：product:200
+     *          }
+     *
+     *
+     *   4、数据一致性？
+     *      缓存中的数据和数据库的是一样的；
+     *      使用模式？
+     *
+     *
+     *
      * @param productId
      * @return
      */
@@ -215,23 +249,54 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             //2、缓存中没有去找数据库
             //tryLock()
             //3、 去redis中占坑
-            Long lock = jedis.setnx("lock", "123");
-            if(lock == 1){
+            //Long lock = jedis.setnx("lock", "123");
+            //占坑的时候，我们要给一个唯一标识UUID
+            String token = UUID.randomUUID().toString();
+
+
+            /**
+             * 1）、分布式锁：要被锁住的所有线程，可以去分布式缓存中同时占一个坑;
+             * 2）、原子操作；加锁、解锁都要原子操作；
+             */
+            String lock = jedis.set("lock", token, SetParams.setParams().ex(5).nx());
+            if(!StringUtils.isEmpty(lock)&&"ok".equalsIgnoreCase(lock)){
                 //获取到锁，查数据，放在缓存中
-                product = productMapper.selectById(productId);
-                //finally  releaseLock();
-                //if(product!=null)
-                //3、放入缓存
-                String json = JSON.toJSONString(product); //无论数据库是否有值，我们都因该放入缓存，防止穿透
-                if(product == null){
-                    int anInt = new Random().nextInt(2000);
-                    jedis.setex(RedisCacheConstant.PRODUCT_INFO_CACHE_KEY + productId,60+anInt,json);
-                }else{
-                    //过期时间
-                    int anInt = new Random().nextInt(2000);
-                    jedis.setex(RedisCacheConstant.PRODUCT_INFO_CACHE_KEY + productId,60*60*24*3+anInt,json);
+                //我们设置了超时，锁会自动删
+                //1）、刚获取到锁（redis中占位完成），停机了，超时代码没走
+                //2）、获取到锁，调用jedis.expire("lock",5);中途网络抖动；
+                //jedis.expire("lock",5);
+                try{
+                    product = productMapper.selectById(productId);
+                    //finally  releaseLock();
+                    //if(product!=null)
+                    //3、放入缓存
+                    String json = JSON.toJSONString(product); //无论数据库是否有值，我们都因该放入缓存，防止穿透
+                    if(product == null){
+                        int anInt = new Random().nextInt(2000);
+                        jedis.setex(RedisCacheConstant.PRODUCT_INFO_CACHE_KEY + productId,60+anInt,json);
+                    }else{
+                        //过期时间
+                        int anInt = new Random().nextInt(2000);
+                        jedis.setex(RedisCacheConstant.PRODUCT_INFO_CACHE_KEY + productId,60*60*24*3+anInt,json);
+                    }
+                }finally {
+                    //删锁的问题，如果由于业务超出的锁的自动删除时间；我们直接按照key删除锁。会导致删掉别人的锁
+//                    if(token.equals(jedis.get("lock"))){
+//                        //这样有没有问题？判断是相等，但是正好锁过期？数值正在网络传输中锁过期了怎么办？
+//                        //比较与删除也应该原子操作
+//                        //脚本删除锁  lua
+//                        jedis.del("lock");
+//                    }
+
+                    /**
+                     * get
+                     * expire
+                     */
+                    String script =
+                            "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+                    jedis.eval(script, Collections.singletonList("lock"),Collections.singletonList(token));
+                    
                 }
-                jedis.del("lock");
             }else{
                 try {
                     Thread.sleep(1000);

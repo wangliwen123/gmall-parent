@@ -101,7 +101,9 @@ public class GmallSearchServiceImpl implements GmallSearchService {
         
         //1、根据页面传递的参数构建检索的DSL语句
         String queryDSL = buildSearchDsl(param);
-        Search search = new Search.Builder(queryDSL).build();
+        Search search = new Search.Builder(queryDSL)
+                .addIndex(EsConstant.ES_PRODUCT_INDEX)
+                .addType(EsConstant.ES_PRODUCT_TYPE).build();
 
         //2、执行查询
         SearchResult result = jestClient.execute(search);
@@ -209,15 +211,18 @@ public class GmallSearchServiceImpl implements GmallSearchService {
             //subTitle与keywords作为加分项
             boolQuery.should(QueryBuilders.matchQuery("subTitle",param.getKeyword()));
             boolQuery.should(QueryBuilders.matchQuery("keywords",param.getKeyword()));
+        }else {
+            //新加的逻辑
+            boolQuery.must(QueryBuilders.matchAllQuery());
         }
-       //2、过滤
-        if(param.getCatelog3Id()!=null){
+       //2、过滤；重新修改的逻辑
+        if(!StringUtils.isEmpty(param.getCatelog3())){
             //传了分类id
-            boolQuery.filter(QueryBuilders.termsQuery("productCategoryId",param.getCatelog3Id()));
+            boolQuery.filter(QueryBuilders.termsQuery("productCategoryName",param.getCatelog3()));
         }
-        if(param.getBrandId()!=null){
+        if(!StringUtils.isEmpty(param.getBrand())){
             //传了品牌
-            boolQuery.filter(QueryBuilders.termsQuery("brandId",param.getBrandId()));
+            boolQuery.filter(QueryBuilders.termsQuery("brandName",param.getBrand()));
         }
 
         //传了属性，过滤属性
@@ -343,10 +348,6 @@ public class GmallSearchServiceImpl implements GmallSearchService {
             if("2".equals(type)){
                 searchSource.sort(SortBuilders.fieldSort("price").order(SortOrder.fromString(asc)));
             }
-//            if("3".equals(type)){
-//                //价格区间查询
-//                searchSource.sort(SortBuilders.fieldSort("price").order(SortOrder.fromString(asc)));
-//            }
         }
 
 

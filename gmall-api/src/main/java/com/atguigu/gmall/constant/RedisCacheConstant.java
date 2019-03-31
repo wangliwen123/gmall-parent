@@ -6,4 +6,7 @@ public class RedisCacheConstant {
 
     //GULI:PRODUCT:INFO
     public static final String PRODUCT_INFO_CACHE_KEY = "gulishop:product:info:";
+
+    public static final String USER_INFO_CACHE_KEY = "gulishop:user:info:";
 }
+
