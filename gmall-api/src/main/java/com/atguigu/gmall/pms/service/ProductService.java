@@ -1,6 +1,7 @@
 package com.atguigu.gmall.pms.service;
 
 import com.atguigu.gmall.pms.entity.Product;
+import com.atguigu.gmall.pms.entity.SkuStock;
 import com.atguigu.gmall.to.PmsProductParam;
 import com.atguigu.gmall.to.es.EsProductAttributeValue;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -34,6 +35,8 @@ public interface ProductService extends IService<Product> {
     List<EsProductAttributeValue> getProductBaseAttr(Long productId);
 
     Product getProductByIdFromCache(Long productId);
+
+    SkuStock getSkuInfo(Long skuId);
 
 //    public Long saveProduct(PmsProductParam productParam);
 //    public void saveOther(PmsProductParam productParam);

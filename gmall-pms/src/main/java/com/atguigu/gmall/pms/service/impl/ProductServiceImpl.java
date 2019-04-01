@@ -319,6 +319,14 @@ s     *              //while(true){
         return product;
     }
 
+    @Override
+    public SkuStock getSkuInfo(Long skuId) {
+        //加上缓存的查询
+
+        SkuStock skuStock = skuStockMapper.selectById(skuId);
+        return skuStock;
+    }
+
     private void publishProduct(List<Long> ids){
         //1、查当前需要上架的商品的sku信息和spu信息
         ids.forEach((id)->{
