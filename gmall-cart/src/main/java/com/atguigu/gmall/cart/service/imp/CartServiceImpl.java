@@ -14,7 +14,6 @@ import com.atguigu.gmall.pms.entity.Product;
 import com.atguigu.gmall.pms.entity.SkuStock;
 import com.atguigu.gmall.pms.service.ProductService;
 import com.atguigu.gmall.ums.entity.Member;
-import com.fasterxml.classmate.GenericType;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
