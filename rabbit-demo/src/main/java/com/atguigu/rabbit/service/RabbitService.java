@@ -6,17 +6,11 @@ import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class RabbitService {
-
 
     @RabbitListener(queues = "deadQueue")
     public void orderCancel(Order order,Channel channel,Message message) throws IOException {
@@ -35,8 +29,6 @@ public class RabbitService {
      * 开启手动确认回复模式
      * 1）、消息丢失
      *      1：手动回复ack
-     *
-     *
      * @param message
      * @param channel
      * @throws IOException

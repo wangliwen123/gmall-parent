@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -29,5 +30,13 @@ public class SkuStockServiceImpl extends ServiceImpl<SkuStockMapper, SkuStock> i
     public List<SkuStock> getAllSkuInfoByProductId(Long productId) {
 
         return  skuStockMapper.selectList(new QueryWrapper<SkuStock>().eq("product_id",productId));
+    }
+
+    @Override
+    public BigDecimal getSkuPriceById(Long skuId) {
+        //TODO 查缓存+读写锁
+
+        SkuStock skuStock = skuStockMapper.selectById(skuId);
+        return skuStock.getPrice();
     }
 }

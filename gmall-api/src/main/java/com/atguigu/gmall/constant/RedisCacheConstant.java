@@ -11,5 +11,8 @@ public class RedisCacheConstant {
     public static final long USER_INFO_TIMEOUT = 3L;//默认过期三天
     public static final String CART_TEMP = "gmall:cart:temp:";
     public static final String USER_CART = "gmall:cart:user:";
+    public static final String TRADE_TOKEN = "gmall:trade:temptoken:";//+用户令牌
+
+    public static final Long TRADE_TOKEN_TIME = 5L;//+用户令牌，以分钟为单位
 }
 

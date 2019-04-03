@@ -13,6 +13,7 @@ import com.atguigu.gmall.constant.RedisCacheConstant;
 import com.atguigu.gmall.pms.entity.Product;
 import com.atguigu.gmall.pms.entity.SkuStock;
 import com.atguigu.gmall.pms.service.ProductService;
+import com.atguigu.gmall.pms.service.SkuStockService;
 import com.atguigu.gmall.ums.entity.Member;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
@@ -21,10 +22,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Service
 @Component
@@ -38,6 +37,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     RedissonClient redissonClient;
+
+    @Reference
+    SkuStockService skuStockService;
 
     /**
      *
@@ -232,19 +234,71 @@ public class CartServiceImpl implements CartService {
             //
         }
 
+
         if(map !=null){
             Cart cart = new Cart();
             cart.setItems(new ArrayList<CartItem>());
             map.entrySet().forEach((o)->{
-                String json = o.getValue();
-                CartItem item = JSON.parseObject(json, CartItem.class);
-                cart.getItems().add(item);
+
+                if(!o.getKey().equals("checked")){
+                    String json = o.getValue();
+                    CartItem item = JSON.parseObject(json, CartItem.class);
+                    cart.getItems().add(item);
+                }
             });
 
             return  cart;
         }else {
             return new Cart();
         }
+    }
+
+    @Override
+    public Cart cartItemsForLoginUser(String token) {
+        return null;
+    }
+
+    @Override
+    public List<CartItem> cartItemsForJieSuan(String token) {
+        //1、根据用户令牌查出用户购物车信息
+        String memberJson = redisTemplate.opsForValue().get(RedisCacheConstant.USER_INFO_CACHE_KEY + token);
+        Member member = JSON.parseObject(memberJson, Member.class);
+
+        Long id = member.getId();
+        String cartKey = RedisCacheConstant.USER_CART + member.getId();
+
+        //获取到的整个购物车
+        RMap<String, String> map = redissonClient.getMap(cartKey);
+
+        String checked = map.get("checked");
+        Set<String> checkedItems = JSON.parseObject(checked, new TypeReference<Set<String>>() {
+        });
+
+
+
+        //购物车选中的购物项
+        List<CartItem> cartItems = new ArrayList<>();
+        
+        if(checkedItems!=null&&!checkedItems.isEmpty()){
+            checkedItems.forEach((e)->{
+                String s = map.get(e);
+                CartItem item = JSON.parseObject(s, CartItem.class);
+                //查询商品的最新价格
+                Long skuId = item.getProductSkuId();
+                //远程查询最新价格
+                //getSkuPriceById   查缓存（读写锁）
+                BigDecimal price = skuStockService.getSkuPriceById(skuId);
+                if(item.getNewPrice()!=null){
+                    item.setPrice(item.getNewPrice());
+                }
+                item.setNewPrice(price);
+                cartItems.add(item);
+            });
+        }
+
+
+        //对比购物项的价格
+        return cartItems;
     }
 
     //给购物车添加一项
@@ -282,11 +336,15 @@ public class CartServiceImpl implements CartService {
 
         if(map!=null&&map.entrySet()!=null){
             map.entrySet().forEach((entry)->{
-                String value = entry.getValue();
-                CartItem item = JSON.parseObject(value, CartItem.class);
-                //将老购物车的数据转移过去
-                addItemToCart(item,item.getNum(),newCartKey);
-                map.remove(item.getProductSkuId()+"");
+                String key = entry.getKey();
+                if(!key.equals("checked")){
+                    String value = entry.getValue();
+                    CartItem item = JSON.parseObject(value, CartItem.class);
+                    //将老购物车的数据转移过去
+                    addItemToCart(item,item.getNum(),newCartKey);
+                    map.remove(item.getProductSkuId()+"");
+                }
+
             });
         }
     }
