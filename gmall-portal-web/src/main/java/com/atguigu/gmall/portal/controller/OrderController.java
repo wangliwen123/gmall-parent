@@ -11,6 +11,8 @@ import com.atguigu.gmall.to.CommonResult;
 import com.atguigu.gmall.ums.entity.MemberReceiveAddress;
 import com.atguigu.gmall.ums.service.MemberService;
 import com.atguigu.gmall.vo.OrderConfirmPageVo;
+import com.atguigu.gmall.vo.OrderResponseVo;
+import com.atguigu.gmall.vo.OrderSubmitVo;
 import io.swagger.annotations.Api;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -39,7 +41,6 @@ public class OrderController {
     /**
      * 订单确认页需要的所有数据
      * @param token
-     * @param result
      * @return
      *
      * 1）、SpringMVC封装的所有参数都会放在ModelAttribute中
@@ -54,12 +55,9 @@ public class OrderController {
     public CommonResult jiesuan(@RequestParam(value = "token")
                                             String token){
         //去结算确认页，返回结算页的数据
-
         //1、需要结算的商品信息、目前是获取到的购物车里面的商品的信息
         List<CartItem> cartItems = cartService.cartItemsForJieSuan(token);
         //2、查优惠券
-
-
         //3、用户可选的地址列表
        // List<MemberReceiveAddress> memberReceiveAddresses =  memberService.getUserAddress(token);
         List<MemberReceiveAddress> memberReceiveAddresses = orderAndPayService.getUserRecieveAddress(token);
@@ -68,8 +66,29 @@ public class OrderController {
         //dubbo认为getXXX不带参数，是获取他里面的属性
         RpcContext.getContext().setAttachment("gmallusertoken",token);
         String tradeToken = orderAndPayService.geiwoTradeToken();
-
         return new CommonResult().success(new OrderConfirmPageVo(cartItems,memberReceiveAddresses,tradeToken));
     }
+
+
+    /**
+     * 下订单并跳转到支付页
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("/submit")
+    public OrderResponseVo payOrder(OrderSubmitVo orderSubmitVo){
+        //1、创建订单
+        OrderResponseVo orderResponse =  orderAndPayService.createOrder(orderSubmitVo);
+
+        //2、再给一个交易token；
+
+        //3、前端返回订单号等信息；展示在确认支付页面，选择支付方式进行支付
+
+        return orderResponse;
+    }
+
+
+
+
 
 }

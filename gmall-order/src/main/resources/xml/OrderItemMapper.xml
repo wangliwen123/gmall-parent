@@ -7,4 +7,15 @@
         id, order_id, order_sn, product_id, product_pic, product_name, product_brand, product_sn, product_price, product_quantity, product_sku_id, product_sku_code, product_category_id, sp1, sp2, sp3, promotion_name, promotion_amount, coupon_amount, integration_amount, real_amount, gift_integration, gift_growth, product_attr
     </sql>
 
+    <sql id="Base_Column_List_WithoutId">
+
+    </sql>
+
+
+    <!-- void insertBatch(List<OrderItem> orderItems);-->
+    <!--<insert id="insertBatch">-->
+        <!--INSERT INTO `oms_order_item`()-->
+<!--VALUES(),()-->
+
+    <!--</insert>-->
 </mapper>

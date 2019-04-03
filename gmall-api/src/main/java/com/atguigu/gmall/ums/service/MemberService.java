@@ -19,4 +19,6 @@ public interface MemberService extends IService<Member> {
     Member login(String username, String password);
 
     List<MemberReceiveAddress> getUserAddress(Long userId);
+
+    MemberReceiveAddress getUserAddressByAddressId(Long addressId);
 }

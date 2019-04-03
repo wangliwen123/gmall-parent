@@ -3,6 +3,8 @@ package com.atguigu.gmall.order.mapper;
 import com.atguigu.gmall.oms.entity.OrderItem;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 订单中所包含的商品 Mapper 接口
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface OrderItemMapper extends BaseMapper<OrderItem> {
 
+    /*void insertBatch(List<OrderItem> orderItems);*/
 }
