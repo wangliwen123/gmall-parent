@@ -123,6 +123,21 @@ public class GmallRabbitConfig {
                 "dead.order",null);
     }
 
+
+    @Bean
+    public Queue releaseStockQueue(){
+
+        return new Queue("releaseStockQueue",true,false,false,null);
+    }
+
+    @Bean
+    public Binding releaseStockQueueBinding(){
+        return new Binding("releaseStockQueue",
+                Binding.DestinationType.QUEUE,
+                "orderDeadExchange",
+                "release.stock",null);
+    }
+
     @Bean
     public MessageConverter messageConverter(){
         return new Jackson2JsonMessageConverter();

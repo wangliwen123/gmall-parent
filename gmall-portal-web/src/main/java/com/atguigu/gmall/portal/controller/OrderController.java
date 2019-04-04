@@ -71,7 +71,7 @@ public class OrderController {
 
 
     /**
-     * 下订单并跳转到支付页
+     * 下订单给前端返回订单信息
      * @return
      */
     @ResponseBody
@@ -86,6 +86,7 @@ public class OrderController {
 
         return orderResponse;
     }
+
 
 
 

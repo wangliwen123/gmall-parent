@@ -7,4 +7,19 @@
         id, product_id, sku_code, price, stock, low_stock, sp1, sp2, sp3, pic, sale, promotion_price, lock_stock
     </sql>
 
+    <!--  void updateStock(SkuStock skuStock);-->
+    <!-- void updateStock(Long skuId, Integer quantity);-->
+    <!--void updateStock(@Param("skuId") Long skuId, @Param("quantity") Integer quantity);-->
+    <update id="updateStock">
+      UPDATE `pms_sku_stock` SET lock_stock=lock_stock+#{quantity} WHERE id=#{skuId}
+    </update>
+
+
+    <!--关闭订单解锁，支付完成并收货了，也要解锁（释放lock,减去stock）-->
+    <!--   void releaseStock(Long productSkuId, Integer productQuantity);-->
+    <update id="releaseStock">
+         UPDATE `pms_sku_stock` SET lock_stock=lock_stock-#{quantity} WHERE id=#{skuId}
+    </update>
+
+
 </mapper>
