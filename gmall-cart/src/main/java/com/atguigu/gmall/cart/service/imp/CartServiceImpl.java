@@ -16,6 +16,7 @@ import com.atguigu.gmall.pms.service.ProductService;
 import com.atguigu.gmall.pms.service.SkuStockService;
 import com.atguigu.gmall.ums.entity.Member;
 import org.redisson.api.RMap;
+import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -40,6 +41,34 @@ public class CartServiceImpl implements CartService {
 
     @Reference
     SkuStockService skuStockService;
+
+
+    public void limiter(){
+
+        //简单限流；没有根据时间窗。
+        RSemaphore orderCountId =
+                redissonClient.getSemaphore("orderCountId");
+
+        //orderCountId.acquire(); acquire到0
+        orderCountId.tryAcquire();
+
+
+        /**
+         * 1、秒杀
+         *      1）、限流？
+         *      2）、业务层需要关注超卖问题；（减库存）
+         *          1）、整点秒杀活动
+         *              1、定时任务去将数据库中的需要秒杀的商品库存上架到redis；
+         *              2、库存（过了时间点）减完，秒杀结束；
+         *              3、每来一个商品减一个库存；
+         *                  set(skuId,100);
+         *                  getSemaphore(skuId)
+         *
+         *
+         *
+         */
+
+    }
 
     /**
      *

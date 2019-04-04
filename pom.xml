@@ -26,6 +26,7 @@
         <module>gmall-mbg</module>
         <module>gmall-portal-web</module>
         <module>gmall-search</module>
+        <module>gmall-seckill</module>
     </modules>
 
 

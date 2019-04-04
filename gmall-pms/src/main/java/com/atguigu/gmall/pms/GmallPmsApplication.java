@@ -1,6 +1,7 @@
 package com.atguigu.gmall.pms;
 
 import com.alibaba.dubbo.config.spring.context.annotation.EnableDubbo;
+import io.lettuce.core.RedisClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
@@ -35,8 +36,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 public class GmallPmsApplication {
 
+
+
     public static void main(String[] args) {
         SpringApplication.run(GmallPmsApplication.class, args);
+
     }
 
 }

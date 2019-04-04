@@ -14,5 +14,6 @@ public class RedisCacheConstant {
     public static final String TRADE_TOKEN = "gmall:trade:temptoken:";//+用户令牌
 
     public static final Long TRADE_TOKEN_TIME = 5L;//+用户令牌，以分钟为单位
+    public static final String SEC_KILL = "gmall:sec:";
 }
 

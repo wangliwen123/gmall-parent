@@ -24,6 +24,8 @@ public class ItemServiceImpl implements ItemService {
     @Reference
     ProductService productService;
 
+
+
     @Override
     public ProductAllInfos getInfo(Long skuId) {
         /**

@@ -9,6 +9,9 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,6 +25,40 @@ public class OrderCloseService {
 
     @Autowired
     RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+
+    /**
+     * initialDelay：系统启动起来多少毫秒以后做事
+     * fixedRate:每隔多久去执行
+     * fixedDelay：上一个任务结束延迟多久准备下一个
+     *
+     * fixedDelay = 5000,
+     */
+    //@Scheduled(initialDelay = 5000,fixedRate=5000)
+    // 7位  中间空格 秒级任务
+    // 秒  分   时   日  月  周（周几）  年（SpringBoot）
+    // 0  0  0  4 4 4
+    //  ,：枚举
+    // -：区间
+    // *  ?（匹配冲突）：通配
+    // /：步长；
+    //  L：Last   W：WorkDay  C：Cande   #：第几个
+//    @Scheduled(cron = "0/5  *  *  *  *  ?")
+//    public void timer(){
+//        System.out.println("扫描数据所有订单.....");
+//    }
+
+//
+    @Schedules({
+            @Scheduled(cron = "0 0 3 * * ?")
+    })
+    public void clearCount(){
+        //删除掉，下次没有会自建。。。
+        stringRedisTemplate.delete("orderCountId");
+    }
 
     /**
      * 死信关单
