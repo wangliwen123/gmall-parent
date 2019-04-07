@@ -11,7 +11,7 @@ pipeline {
         sh '''source /etc/profile
 java -version
 
-mvn -v'''
+mvn clean package -Dmaven.test.skip=true'''
       }
     }
   }
