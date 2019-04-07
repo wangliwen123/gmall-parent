@@ -8,7 +8,8 @@ pipeline {
     }
     stage('error') {
       steps {
-        sh '''java -version
+        sh '''source /etc/profile
+java -version
 
 mvn -v'''
       }
