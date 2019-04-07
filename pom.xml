@@ -27,6 +27,11 @@
         <module>gmall-portal-web</module>
         <module>gmall-search</module>
         <module>gmall-seckill</module>
+        <module>gmall-cart</module>
+        <module>gmall-cas</module>
+        <module>gmall-item</module>
+        <module>gmall-order</module>
+        <module>rabbit-demo</module>
     </modules>
 
 

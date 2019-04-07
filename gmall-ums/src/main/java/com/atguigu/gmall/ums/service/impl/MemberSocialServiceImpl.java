@@ -91,7 +91,6 @@ public class MemberSocialServiceImpl extends ServiceImpl<MemberSocialMapper, Mem
                         MemberSocial memberSocial = memberSocials.get(0);
                         //查出这个member返回
                         member = memberMapper.selectById(memberSocial.getUserId());
-
                     }else{
                         //给系统插入一个新用户
                         memberMapper.insert(registMember);
