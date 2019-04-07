@@ -6,9 +6,10 @@ pipeline {
         echo '66666'
       }
     }
-    stage('') {
+    stage('error') {
       steps {
-        sh 'mvn clean package'
+        sh '''java -version
+mvn -version'''
       }
     }
   }
