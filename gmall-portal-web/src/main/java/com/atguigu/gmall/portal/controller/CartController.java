@@ -13,6 +13,11 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @Api(tags = "购物车")
 @RequestMapping("/cart")
 @RestController
@@ -129,6 +134,11 @@ public class CartController {
         Cart cart = cartService.cartItemsList(cartKey);
         return new CommonResult().success(cart);
 
+    }
+
+    public String ok(HttpServletRequest request, HttpServletResponse response){
+
+        return "";
     }
 
 }

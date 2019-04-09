@@ -15,6 +15,7 @@ import com.atguigu.gmall.pms.entity.SkuStock;
 import com.atguigu.gmall.pms.service.ProductService;
 import com.atguigu.gmall.pms.service.SkuStockService;
 import com.atguigu.gmall.ums.entity.Member;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.redisson.api.RMap;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
@@ -33,7 +34,16 @@ public class CartServiceImpl implements CartService {
     @Autowired
     StringRedisTemplate redisTemplate;
 
-    @Reference
+    /**
+     * 几种容错模式；
+     * 【failover】：失败重试其他服务器；
+     * 【failfast】：失败就立即返回错误，也不重试。
+     * failsafe：失败了写进日志，不管了。
+     * failback：如果此次失败，等一会再发送请求。
+     * forking：并行调用多个服务器，只要一个成功即返回。
+     *
+     */
+    @Reference(cluster = "failover")
     ProductService productService;
 
     @Autowired
@@ -82,6 +92,7 @@ public class CartServiceImpl implements CartService {
      * @param cartKey
      * @return
      */
+    @HystrixCommand(fallbackMethod = "reliable")
     @Override
     public SkuResponse addToCart(Long skuId, Integer num, String cartKey) {
         SkuResponse skuResponse = new SkuResponse();
@@ -151,6 +162,11 @@ public class CartServiceImpl implements CartService {
 
         return skuResponse;
     }
+
+    public SkuResponse reliable(Long skuId, Integer num, String cartKey){
+        return null;
+    }
+
 
     @Override
     public boolean updateCount(Long skuId, Integer num, String cartKey) {
@@ -377,6 +393,7 @@ public class CartServiceImpl implements CartService {
             });
         }
     }
+
 
 
 

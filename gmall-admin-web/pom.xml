@@ -16,7 +16,6 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <skipTests>true</skipTests>
         <dockerHost>http://192.168.159.130:2375</dockerHost>
     </properties>
 
@@ -74,24 +73,21 @@
             </plugin>
             <plugin>
                 <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>1.4.9</version>
-                <executions>
-                    <execution>
-                        <id>default</id>
-                        <goals>
-                            <goal>build</goal>
-                            <goal>push</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.2.0</version>
+
                 <configuration>
-                    <registryUrl>http://192.168.159.130:2375</registryUrl>
-                    <repository>gmall/${project.build.finalName}</repository>
-                    <tag>${project.version}</tag>
-                    <buildArgs>
-                        <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
-                    </buildArgs>
+                    <imageName>gmall/${project.build.finalName}</imageName>
+                    <baseImage>anapsix/alpine-java</baseImage>
+                    <!--<dockerDirectory>${basedir}/docker</dockerDirectory>  指定 Dockerfile 路径-->
+                    <entryPoint>["java","-jar","/${project.build.finalName}.jar"]</entryPoint>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
                 </configuration>
             </plugin>
         </plugins>

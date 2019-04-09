@@ -15,6 +15,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
@@ -236,6 +238,12 @@ s     *              //while(true){
      * @param productId
      * @return
      */
+    //给总是出错的方法，加上熔断注解。。。。
+    //2s内10次调用都出问题就开启断路保护。
+    @HystrixCommand(commandProperties = {
+            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"),
+            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "2000")
+    },fallbackMethod = "cirbreaker")
     @Override
     public Product getProductByIdFromCache(Long productId)  {
         Jedis jedis = jedisPool.getResource();
@@ -319,6 +327,19 @@ s     *              //while(true){
         return product;
     }
 
+    /**
+     * 兜底回调的返回
+     * 1）、服务提供者，自己的容错；（提供者出现问题，熔断就开不起了）
+     * 2）、服务消费者，自己远程调用会出错。@HystrixCommand(fallbackMethod = "cirbreaker")；
+     * 实际上？
+     *    服务提供者加的多。双端都可以加上。
+     *
+     * @param productId
+     * @return
+     */
+    public Product cirbreaker(Long productId){
+        return new Product();//兜底数据
+    }
     @Override
     public SkuStock getSkuInfo(Long skuId) {
         //加上缓存的查询

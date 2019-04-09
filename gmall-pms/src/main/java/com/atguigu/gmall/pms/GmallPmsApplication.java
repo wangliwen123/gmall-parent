@@ -6,6 +6,8 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -27,7 +29,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  *
  */
 //开启事务
-
+//@EnableHystrix 随便表一个
+////@EnableCircuitBreaker
+@EnableHystrix
 @EnableAspectJAutoProxy(exposeProxy = true)
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableDubbo
